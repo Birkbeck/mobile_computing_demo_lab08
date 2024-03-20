@@ -19,10 +19,13 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.addButton.setOnClickListener { showAddExpenseDialog(null) }
 
+        val dao = ExpensesDatabase.getInstance(applicationContext).expenseDao()
+        viewModel.expensesDao = dao
         viewModel.readAllExpenses()
         viewModel.expenses.observe(this) { expenses ->
             adapter.updateExpenses(expenses)
         }
+
     }
 
     private fun showAddExpenseDialog(expense: Expense?) {
@@ -40,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             // Get input from the EditText fields
             val title = dialogBinding.titleEditText.text.toString()
             val cost = dialogBinding.costEditText.text.toString().toDoubleOrNull() ?: 0.0
-
+            viewModel.addExpense(title,cost)
             dialog.dismiss()
         }
 

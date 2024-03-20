@@ -1,28 +1,61 @@
 package gr.gkortsaridis.mobilecomputingdemolab08
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
 
     private val _expenses = MutableLiveData(listOf<Expense>())
     val expenses: LiveData<List<Expense>> = _expenses
 
+    var expensesDao: ExpensesDao? = null
 
     fun readAllExpenses() {
-        //TODO: Read all saved Expenses
+        viewModelScope.launch {
+            expensesDao?.let {
+                val expenses = it.getAllExpenses()
+
+                Log.i("BBK", expenses.toString())
+                _expenses.value = expenses
+            }
+        }
     }
 
     fun addExpense(title: String, cost: Double) {
-        //TODO: Create and save Expense
+        viewModelScope.launch {
+            expensesDao?.let {
+                val expense = Expense(title = title, cost = cost)
+                it.insertExpense(expense)
+
+                readAllExpenses()
+            }
+        }
+
     }
 
-    fun editExpense(title: String, cost: Double) {
-        //TODO: Edit and replace Expense
+    fun editExpense(expense: Expense) {
+        viewModelScope.launch {
+            expensesDao?.let {
+                it.updateExpense(expense)
+
+                readAllExpenses()
+            }
+        }
+
     }
 
     fun deleteExpense(expense: Expense) {
-        //TODO: Delete Expense
+        viewModelScope.launch {
+            expensesDao?.let {
+                it.deleteExpense(expense)
+
+                readAllExpenses()
+            }
+        }
+
     }
 }
